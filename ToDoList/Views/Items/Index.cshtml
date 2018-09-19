@@ -1,0 +1,4 @@
+@foreach (var item in Model)
+{
+    <h4>@item.GetDescription() | <a href="/items/@item.GetId()/update">Edit</a> <a href="/items/@item.GetId()/delete">Edit</a></h4>
+}

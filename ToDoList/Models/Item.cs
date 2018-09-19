@@ -27,7 +27,7 @@ namespace ToDoList.Models
         Item newItem = (Item) otherItem;
         bool idEquality = (this.GetId() == newItem.GetId());
         bool descriptionEquality = (this.GetDescription() == newItem.GetDescription());
-        return (descriptionEquality);
+        return (idEquality && descriptionEquality);
       }
     }
 
@@ -74,7 +74,7 @@ namespace ToDoList.Models
 
       while (rdr.Read())
       {
-          itemId = rdr.GetInt32(0);
+        itemId = rdr.GetInt32(0);
         itemDescription = rdr.GetString(1);
       }
 
@@ -83,7 +83,7 @@ namespace ToDoList.Models
       conn.Close();
       if (conn != null)
       {
-          conn.Dispose();
+        conn.Dispose();
       }
 
       return foundItem;
@@ -125,26 +125,74 @@ namespace ToDoList.Models
     }
 
     public static List<Item> GetAll()
-        {
-            List<Item> allItems = new List<Item> {};
-            MySqlConnection conn = DB.Connection();
-            conn.Open();
-            MySqlCommand cmd = conn.CreateCommand() as MySqlCommand;
-            cmd.CommandText = @"SELECT * FROM items;";
-            MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
-            while(rdr.Read())
-            {
-              int itemId = rdr.GetInt32(0);
-              string itemDescription = rdr.GetString(1);
-              Item newItem = new Item(itemDescription, itemId);
-              allItems.Add(newItem);
-            }
-            conn.Close();
-            if (conn != null)
-            {
-                conn.Dispose();
-            }
-            return allItems;
-        }
+    {
+      List<Item> allItems = new List<Item> {};
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+      MySqlCommand cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"SELECT * FROM items;";
+      MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
+      while(rdr.Read())
+      {
+        int itemId = rdr.GetInt32(0);
+        string itemDescription = rdr.GetString(1);
+        Item newItem = new Item(itemDescription, itemId);
+        allItems.Add(newItem);
+      }
+      conn.Close();
+      if (conn != null)
+      {
+        conn.Dispose();
+      }
+      return allItems;
+    }
+
+    public void Edit(string newDescription)
+    {
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+      var cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"UPDATE items SET description = @newDescription WHERE id = @searchId;";
+
+      MySqlParameter searchId = new MySqlParameter();
+      searchId.ParameterName = "@searchId";
+      searchId.Value = _id;
+      cmd.Parameters.Add(searchId);
+
+      MySqlParameter description = new MySqlParameter();
+      description.ParameterName = "@newDescription";
+      description.Value = newDescription;
+      cmd.Parameters.Add(description);
+
+      cmd.ExecuteNonQuery();
+      _description = newDescription;
+
+      conn.Close();
+      if (conn != null)
+      {
+        conn.Dispose();
+      }
+    }
+
+    public void Delete()
+    {
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+      var cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"DELETE FROM items WHERE id = @thisId;";
+
+      MySqlParameter searchId = new MySqlParameter();
+      searchId.ParameterName = "@searchId";
+      searchId.Value = _id;
+      cmd.Parameters.Add(searchId);
+
+      cmd.ExecuteNonQuery();
+
+      conn.Close();
+      if (conn != null)
+      {
+        conn.Dispose();
+      }
+    }
   }
 }

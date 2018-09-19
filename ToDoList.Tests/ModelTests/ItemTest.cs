@@ -77,13 +77,37 @@ namespace ToDoList.Tests
       //Arrange
       Item testItem = new Item("Mow the lawn");
       testItem.Save();
-    
+
       //Act
       Item foundItem = Item.Find(testItem.GetId());
 
       //Assert
       Assert.AreEqual(testItem, foundItem);
     }
+
+    [TestMethod]
+    public void Edit_UpdatesItemInDatabase_String()
+    {
+      //Arrange
+      string firstDescription = "Walk the Dog";
+      Item testItem = new Item(firstDescription, 1);
+      testItem.Save();
+      string secondDescription = "Mow the lawn";
+
+      //Act
+      testItem.Edit(secondDescription);
+
+      string result = Item.Find(testItem.GetId()).GetDescription();
+
+      //Assert
+      Assert.AreEqual(secondDescription , result);
+    }
+
+
+
+
+
+    //After this is all irrelavant and only related to the old to-do list testing
 
     // [TestMethod]
     // public void GetDescription_ReturnsDescription_String()
